@@ -286,12 +286,12 @@
       <i class="ti ti-lock" style="font-size:20px;color:var(--color-info-text)"></i>
       <h2 style="font-size:17px;font-weight:600">Orca Env Team</h2>
     </div>
-    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:18px;line-height:1.6">접근하려면 팀 비밀번호를 입력하세요.</p>
-    <input id="login-pw" type="password" placeholder="비밀번호" autocomplete="current-password"
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:18px;line-height:1.6">Enter the team password to continue.</p>
+    <input id="login-pw" type="password" placeholder="Password" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')submitLogin()"
       style="width:100%;padding:9px 11px;font-size:14px;border:0.5px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-family:var(--font);outline:none;margin-bottom:6px"/>
     <p id="login-err" style="font-size:12px;color:var(--color-danger-text);min-height:16px;margin-bottom:10px"></p>
-    <button class="btn btn-primary" onclick="submitLogin()" style="width:100%;justify-content:center;padding:9px"><i class="ti ti-login"></i> 입장</button>
+    <button class="btn btn-primary" onclick="submitLogin()" style="width:100%;justify-content:center;padding:9px"><i class="ti ti-login"></i> Enter</button>
   </div>
 </div>
 
@@ -883,7 +883,7 @@ function submitLogin(){
     try{localStorage.setItem(AUTH_FLAG,ACCESS_PASSWORD);}catch(e){}
     enterApp();
   } else {
-    document.getElementById('login-err').textContent='비밀번호가 올바르지 않습니다.';
+    document.getElementById('login-err').textContent='Incorrect password.';
     document.getElementById('login-pw').value='';
   }
 }
