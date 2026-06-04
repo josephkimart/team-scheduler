@@ -280,7 +280,22 @@
 </head>
 <body>
 
-<div id="loading-overlay">
+<div id="login-overlay" style="position:fixed;inset:0;background:var(--color-bg-tertiary);display:none;align-items:center;justify-content:center;z-index:1000">
+  <div style="background:var(--color-bg);border:0.5px solid var(--color-border);border-radius:var(--radius-lg);padding:30px 28px;width:330px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,0.12)">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">
+      <i class="ti ti-lock" style="font-size:20px;color:var(--color-info-text)"></i>
+      <h2 style="font-size:17px;font-weight:600">Orca Env Team</h2>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:18px;line-height:1.6">접근하려면 팀 비밀번호를 입력하세요.</p>
+    <input id="login-pw" type="password" placeholder="비밀번호" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')submitLogin()"
+      style="width:100%;padding:9px 11px;font-size:14px;border:0.5px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-family:var(--font);outline:none;margin-bottom:6px"/>
+    <p id="login-err" style="font-size:12px;color:var(--color-danger-text);min-height:16px;margin-bottom:10px"></p>
+    <button class="btn btn-primary" onclick="submitLogin()" style="width:100%;justify-content:center;padding:9px"><i class="ti ti-login"></i> 입장</button>
+  </div>
+</div>
+
+<div id="loading-overlay" style="display:none">
   <div class="sync-dot saving" style="width:10px;height:10px"></div>
   <span>데이터 불러오는 중…</span>
 </div>
@@ -399,8 +414,15 @@
 </div>
 
 <script>
+/* ── Access control ──
+   ACCESS_PASSWORD: 화면 진입용 비밀번호 (자유롭게 변경 가능)
+   DATA_KEY: Firebase 비밀 경로 (보안 규칙과 반드시 일치해야 함)        */
+const ACCESS_PASSWORD='orca2026';
+const DATA_KEY='orcaSecret8f3k';
+const AUTH_FLAG='team-scheduler-authed';
+
 /* ── Firebase REST ── */
-const FB_URL='https://orca-schedule-3103f-default-rtdb.firebaseio.com/data.json';
+const FB_URL='https://orca-schedule-3103f-default-rtdb.firebaseio.com/'+DATA_KEY+'.json';
 
 async function fbLoad(){
   const res=await fetch(FB_URL);
@@ -854,8 +876,35 @@ function saveTeam(){
   showToast('Team updated');
 }
 
+/* ── Access gate ── */
+function submitLogin(){
+  const v=document.getElementById('login-pw').value;
+  if(v===ACCESS_PASSWORD){
+    try{localStorage.setItem(AUTH_FLAG,ACCESS_PASSWORD);}catch(e){}
+    enterApp();
+  } else {
+    document.getElementById('login-err').textContent='비밀번호가 올바르지 않습니다.';
+    document.getElementById('login-pw').value='';
+  }
+}
+function enterApp(){
+  document.getElementById('login-overlay').style.display='none';
+  document.getElementById('loading-overlay').style.display='flex';
+  initLoad();
+}
+function boot(){
+  let authed=false;
+  try{authed=localStorage.getItem(AUTH_FLAG)===ACCESS_PASSWORD;}catch(e){}
+  if(authed){
+    enterApp();
+  } else {
+    document.getElementById('login-overlay').style.display='flex';
+    document.getElementById('login-pw').focus();
+  }
+}
+
 /* ── Start ── */
-initLoad();
+boot();
 </script>
 </body>
 </html>
