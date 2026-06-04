@@ -275,6 +275,27 @@
 
   .hidden { display: none !important; }
   .empty-msg { font-size: 13px; color: var(--color-text-secondary); padding: 8px 0; }
+
+  /* cloud sync */
+  .sync-bar {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    padding: 8px 12px; background: var(--color-bg);
+    border: 0.5px solid var(--color-border); border-radius: var(--radius-md);
+    font-size: 12px; color: var(--color-text-secondary);
+  }
+  .sync-status { display: flex; align-items: center; gap: 5px; flex: 1; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .sync-dot.ok { background: #639922; }
+  .sync-dot.err { background: #D85A30; }
+  .sync-dot.loading { background: #EF9F27; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .sync-modal { width: 420px; }
+  .sync-modal .form-row textarea {
+    width: 100%; padding: 7px 9px; font-size: 12px; font-family: monospace;
+    border: 0.5px solid var(--color-border-strong); border-radius: var(--radius-md);
+    background: var(--color-bg); color: var(--color-text); resize: none;
+  }
+  .sync-modal .form-row textarea:focus { outline: none; border-color: var(--color-info-text); }
 </style>
 </head>
 <body>
@@ -291,10 +312,21 @@
     <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i> Add task</button>
     <button class="btn" onclick="exportData()" title="Export as JSON"><i class="ti ti-download"></i> Export</button>
     <label class="btn" title="Import from JSON" style="cursor:pointer"><i class="ti ti-upload"></i> Import<input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)"/></label>
+    <button class="btn" onclick="openSyncModal()" title="Cloud sync settings"><i class="ti ti-cloud"></i> Sync</button>
     <div class="view-tabs" style="margin-left:0">
       <button class="tab active" id="tab-gantt" onclick="setView('gantt')">Gantt</button>
       <button class="tab" id="tab-list" onclick="setView('list')">List</button>
     </div>
+  </div>
+
+  <!-- sync status bar -->
+  <div class="sync-bar" id="sync-bar">
+    <div class="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Cloud sync not configured</span>
+    </div>
+    <button class="btn" style="padding:3px 9px;font-size:11px" onclick="cloudPull()" id="sync-pull-btn" title="Pull from cloud" disabled><i class="ti ti-cloud-download"></i> Pull</button>
+    <button class="btn btn-primary" style="padding:3px 9px;font-size:11px" onclick="cloudPush()" id="sync-push-btn" title="Push to cloud" disabled><i class="ti ti-cloud-upload"></i> Push</button>
   </div>
 
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
@@ -347,6 +379,33 @@
     <div class="modal-actions">
       <button class="btn" onclick="closeTeamModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveTeam()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- cloud sync modal -->
+<div id="sync-modal" class="modal-bg hidden">
+  <div class="modal sync-modal">
+    <h3><i class="ti ti-cloud" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Cloud Sync 설정</h3>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.6">
+      GitHub Personal Access Token을 입력하면 데이터가 <b>비공개 Gist</b>에 저장됩니다.<br>
+      토큰은 이 브라우저 localStorage에만 보관됩니다.
+    </p>
+    <div class="form-row">
+      <label>GitHub Personal Access Token <span style="font-weight:400;color:var(--color-text-muted)">(gist 권한 필요)</span></label>
+      <input id="sync-token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
+    </div>
+    <div class="form-row" id="sync-gist-row">
+      <label>Gist ID <span style="font-weight:400;color:var(--color-text-muted)">(비워두면 자동 생성)</span></label>
+      <input id="sync-gist-input" placeholder="자동 생성됩니다"/>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:4px">
+      토큰 발급: GitHub → Settings → Developer settings → Personal access tokens → <b>gist</b> scope 선택
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSyncModal()">취소</button>
+      <button class="btn btn-danger" onclick="clearSyncConfig()" id="sync-clear-btn" style="display:none">연결 해제</button>
+      <button class="btn btn-primary" onclick="saveSyncConfig()"><i class="ti ti-check"></i> 저장 &amp; 연결</button>
     </div>
   </div>
 </div>
@@ -855,6 +914,142 @@ function saveTeam(){
 populateMemberSelect();
 document.getElementById('memo-area').value=loadMemo();
 render();
+
+/* ── Cloud Sync (GitHub Gist) ── */
+const SYNC_TOKEN_KEY='team-scheduler-sync-token';
+const SYNC_GIST_KEY='team-scheduler-sync-gist';
+const GIST_FILENAME='team-scheduler-data.json';
+
+function getSyncToken(){try{return localStorage.getItem(SYNC_TOKEN_KEY)||'';}catch(e){return '';}}
+function getSyncGistId(){try{return localStorage.getItem(SYNC_GIST_KEY)||'';}catch(e){return '';}}
+
+function setSyncStatus(state, text){
+  const dot=document.getElementById('sync-dot');
+  const lbl=document.getElementById('sync-label');
+  const pullBtn=document.getElementById('sync-pull-btn');
+  const pushBtn=document.getElementById('sync-push-btn');
+  dot.className='sync-dot'+(state?' '+state:'');
+  lbl.textContent=text;
+  const hasToken=!!getSyncToken();
+  pullBtn.disabled=!hasToken; pushBtn.disabled=!hasToken;
+}
+
+function initSyncStatus(){
+  const token=getSyncToken(), gistId=getSyncGistId();
+  if(!token){setSyncStatus('','Cloud sync not configured');return;}
+  if(gistId){setSyncStatus('ok',`Gist 연결됨 · ${gistId.slice(0,8)}…`);}
+  else{setSyncStatus('','토큰 설정됨 — Push로 Gist 생성');}
+}
+
+function openSyncModal(){
+  document.getElementById('sync-token-input').value=getSyncToken();
+  document.getElementById('sync-gist-input').value=getSyncGistId();
+  const hasCfg=!!getSyncToken();
+  document.getElementById('sync-clear-btn').style.display=hasCfg?'':'none';
+  document.getElementById('sync-modal').className='modal-bg';
+}
+function closeSyncModal(){document.getElementById('sync-modal').className='modal-bg hidden';}
+
+function saveSyncConfig(){
+  const token=document.getElementById('sync-token-input').value.trim();
+  const gist=document.getElementById('sync-gist-input').value.trim();
+  if(!token){alert('토큰을 입력해주세요.');return;}
+  try{
+    localStorage.setItem(SYNC_TOKEN_KEY,token);
+    if(gist)localStorage.setItem(SYNC_GIST_KEY,gist);
+    else localStorage.removeItem(SYNC_GIST_KEY);
+  }catch(e){}
+  closeSyncModal();
+  initSyncStatus();
+  showToast('Sync 설정 저장됨');
+}
+
+function clearSyncConfig(){
+  if(!confirm('Cloud sync 연결을 해제할까요? 로컬 데이터는 유지됩니다.'))return;
+  try{localStorage.removeItem(SYNC_TOKEN_KEY);localStorage.removeItem(SYNC_GIST_KEY);}catch(e){}
+  closeSyncModal();
+  initSyncStatus();
+  showToast('연결 해제됨');
+}
+
+async function cloudPush(){
+  const token=getSyncToken();
+  if(!token){openSyncModal();return;}
+  setSyncStatus('loading','저장 중…');
+  const payload={
+    version:CURRENT_VERSION,
+    exportedAt:new Date().toISOString(),
+    tasks,nextId,
+    memo:document.getElementById('memo-area').value,
+    members:MEMBERS
+  };
+  const body=JSON.stringify(payload,null,2);
+  const gistId=getSyncGistId();
+  try{
+    let res;
+    if(gistId){
+      res=await fetch(`https://api.github.com/gists/${gistId}`,{
+        method:'PATCH',
+        headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},
+        body:JSON.stringify({files:{[GIST_FILENAME]:{content:body}}})
+      });
+    } else {
+      res=await fetch('https://api.github.com/gists',{
+        method:'POST',
+        headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},
+        body:JSON.stringify({description:'Team Scheduler Data',public:false,files:{[GIST_FILENAME]:{content:body}}})
+      });
+    }
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const newId=data.id;
+    try{localStorage.setItem(SYNC_GIST_KEY,newId);}catch(e){}
+    setSyncStatus('ok',`저장됨 · ${newId.slice(0,8)}… · ${new Date().toLocaleTimeString()}`);
+    showToast('Cloud에 저장됨 ☁️');
+  }catch(err){
+    setSyncStatus('err','저장 실패: '+err.message);
+    showToast('저장 실패: '+err.message);
+  }
+}
+
+async function cloudPull(){
+  const token=getSyncToken(), gistId=getSyncGistId();
+  if(!token){openSyncModal();return;}
+  if(!gistId){showToast('먼저 Push로 Gist를 생성하세요.');return;}
+  setSyncStatus('loading','불러오는 중…');
+  try{
+    const res=await fetch(`https://api.github.com/gists/${gistId}`,{
+      headers:{Authorization:`token ${token}`}
+    });
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const raw=data.files[GIST_FILENAME]?.content;
+    if(!raw)throw new Error('파일 없음');
+    const parsed=JSON.parse(raw);
+    if(!parsed.tasks||!Array.isArray(parsed.tasks))throw new Error('Invalid format');
+    if(!confirm('Cloud 데이터를 불러올까요? 현재 로컬 데이터는 덮어씌워집니다.'))return;
+    tasks=parsed.tasks;
+    nextId=parsed.nextId||tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
+    if(parsed.members&&Array.isArray(parsed.members)){
+      MEMBERS.splice(0,MEMBERS.length,...parsed.members);
+      saveMembers();
+      activeMembers=new Set(MEMBERS.map(m=>m.id));
+    }
+    if(parsed.memo){
+      document.getElementById('memo-area').value=parsed.memo;
+      try{localStorage.setItem(STORAGE_MEMO_KEY,parsed.memo);}catch(e){}
+    }
+    saveTasks();
+    render();
+    setSyncStatus('ok',`불러옴 · ${gistId.slice(0,8)}… · ${new Date().toLocaleTimeString()}`);
+    showToast('Cloud에서 불러옴 ☁️');
+  }catch(err){
+    setSyncStatus('err','불러오기 실패: '+err.message);
+    showToast('불러오기 실패: '+err.message);
+  }
+}
+
+initSyncStatus();
 </script>
 </body>
 </html>
