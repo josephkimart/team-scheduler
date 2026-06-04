@@ -57,33 +57,32 @@
   }
   .container { max-width: 1200px; margin: 0 auto; }
   h1 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 20px; font-weight: 600; color: var(--color-text);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
   }
   h1 i { font-size: 22px; color: var(--color-info-text); }
+
+  /* sync indicator */
+  .sync-indicator {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--color-text-muted);
+    margin-left: auto; font-weight: 400;
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .sync-dot.ok { background: #639922; }
+  .sync-dot.err { background: #D85A30; }
+  .sync-dot.saving { background: #EF9F27; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
   /* toolbar */
   .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
   .month-nav { display: flex; align-items: center; gap: 6px; }
   .month-title { font-size: 15px; font-weight: 600; color: var(--color-text); min-width: 140px; text-align: center; }
   .btn {
-    background: var(--color-bg);
-    border: 0.5px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    padding: 6px 11px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--color-text);
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: var(--font);
-    transition: background .12s;
+    background: var(--color-bg); border: 0.5px solid var(--color-border-strong);
+    border-radius: var(--radius-md); padding: 6px 11px; cursor: pointer;
+    font-size: 13px; color: var(--color-text); display: inline-flex;
+    align-items: center; gap: 5px; font-family: var(--font); transition: background .12s;
   }
   .btn:hover { background: var(--color-bg-secondary); }
   .btn-primary { background: var(--color-info-bg); color: var(--color-info-text); border-color: transparent; }
@@ -116,11 +115,8 @@
 
   /* main card */
   .card {
-    background: var(--color-bg);
-    border: 0.5px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: 14px;
+    background: var(--color-bg); border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 14px;
   }
 
   /* gantt */
@@ -137,9 +133,7 @@
   }
   .gantt th.weekend-col { background: var(--color-weekend-bg); }
   .gantt td { padding: 3px 2px; border-bottom: 0.5px solid var(--color-border); vertical-align: middle; }
-  .gantt td.name-col {
-    padding: 4px 12px; position: sticky; left: 0; z-index: 1; background: var(--color-bg);
-  }
+  .gantt td.name-col { padding: 4px 12px; position: sticky; left: 0; z-index: 1; background: var(--color-bg); }
   .gantt td.weekend-cell { background: var(--color-weekend-bg); }
   .gantt td.today-col { background: var(--color-today); }
   .gantt tr:last-child td { border-bottom: none; }
@@ -161,9 +155,8 @@
   /* side panel */
   .side-panel { display: flex; gap: 12px; flex-wrap: wrap; }
   .panel-card {
-    flex: 1; min-width: 210px;
-    background: var(--color-bg); border: 0.5px solid var(--color-border);
-    border-radius: var(--radius-lg); padding: 14px 16px;
+    flex: 1; min-width: 210px; background: var(--color-bg);
+    border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px 16px;
   }
   .panel-title {
     font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
@@ -276,31 +269,30 @@
   .hidden { display: none !important; }
   .empty-msg { font-size: 13px; color: var(--color-text-secondary); padding: 8px 0; }
 
-  /* cloud sync */
-  .sync-bar {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-    padding: 8px 12px; background: var(--color-bg);
-    border: 0.5px solid var(--color-border); border-radius: var(--radius-md);
-    font-size: 12px; color: var(--color-text-secondary);
+  /* loading overlay */
+  #loading-overlay {
+    position: fixed; inset: 0; background: var(--color-bg-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999; flex-direction: column; gap: 12px;
   }
-  .sync-status { display: flex; align-items: center; gap: 5px; flex: 1; }
-  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
-  .sync-dot.ok { background: #639922; }
-  .sync-dot.err { background: #D85A30; }
-  .sync-dot.loading { background: #EF9F27; animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-  .sync-modal { width: 420px; }
-  .sync-modal .form-row textarea {
-    width: 100%; padding: 7px 9px; font-size: 12px; font-family: monospace;
-    border: 0.5px solid var(--color-border-strong); border-radius: var(--radius-md);
-    background: var(--color-bg); color: var(--color-text); resize: none;
-  }
-  .sync-modal .form-row textarea:focus { outline: none; border-color: var(--color-info-text); }
+  #loading-overlay span { font-size: 13px; color: var(--color-text-secondary); }
 </style>
 </head>
 <body>
+
+<div id="loading-overlay">
+  <div class="sync-dot saving" style="width:10px;height:10px"></div>
+  <span>데이터 불러오는 중…</span>
+</div>
+
 <div class="container">
-  <h1><i class="ti ti-layout-grid"></i> Orca Env Team — Mid Term Schedule</h1>
+  <h1>
+    <i class="ti ti-layout-grid"></i> Orca Env Team — Mid Term Schedule
+    <span class="sync-indicator">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">연결 중…</span>
+    </span>
+  </h1>
 
   <div class="toolbar">
     <div class="month-nav">
@@ -312,21 +304,10 @@
     <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i> Add task</button>
     <button class="btn" onclick="exportData()" title="Export as JSON"><i class="ti ti-download"></i> Export</button>
     <label class="btn" title="Import from JSON" style="cursor:pointer"><i class="ti ti-upload"></i> Import<input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)"/></label>
-    <button class="btn" onclick="openSyncModal()" title="Cloud sync settings"><i class="ti ti-cloud"></i> Sync</button>
     <div class="view-tabs" style="margin-left:0">
       <button class="tab active" id="tab-gantt" onclick="setView('gantt')">Gantt</button>
       <button class="tab" id="tab-list" onclick="setView('list')">List</button>
     </div>
-  </div>
-
-  <!-- sync status bar -->
-  <div class="sync-bar" id="sync-bar">
-    <div class="sync-status">
-      <div class="sync-dot" id="sync-dot"></div>
-      <span id="sync-label">Cloud sync not configured</span>
-    </div>
-    <button class="btn" style="padding:3px 9px;font-size:11px" onclick="cloudPull()" id="sync-pull-btn" title="Pull from cloud" disabled><i class="ti ti-cloud-download"></i> Pull</button>
-    <button class="btn btn-primary" style="padding:3px 9px;font-size:11px" onclick="cloudPush()" id="sync-push-btn" title="Push to cloud" disabled><i class="ti ti-cloud-upload"></i> Push</button>
   </div>
 
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
@@ -360,15 +341,11 @@
   <div class="panel-card" style="margin-top:14px">
     <div class="panel-title" style="margin-bottom:10px">
       <i class="ti ti-notes" style="font-size:13px"></i> Memo
-      <span id="memo-saved-indicator" style="font-size:10px;font-weight:400;margin-left:8px;color:var(--color-info-text);opacity:0;transition:opacity .4s">Saved</span>
     </div>
-    <textarea id="memo-area" placeholder="Leave a note for the team..." style="width:100%;min-height:90px;padding:8px 10px;font-size:13px;font-family:var(--font);border:0.5px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);resize:vertical;line-height:1.6;outline:none"></textarea>
-    <div style="display:flex;justify-content:flex-end;margin-top:8px">
-      <button class="btn btn-primary" onclick="saveMemo()"><i class="ti ti-device-floppy"></i> Save memo</button>
-    </div>
+    <textarea id="memo-area" placeholder="Leave a note for the team..." oninput="scheduleSave()"
+      style="width:100%;min-height:90px;padding:8px 10px;font-size:13px;font-family:var(--font);border:0.5px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);resize:vertical;line-height:1.6;outline:none"></textarea>
   </div>
 </div>
-
 
 <!-- team editor modal -->
 <div id="team-modal" class="modal-bg hidden">
@@ -379,33 +356,6 @@
     <div class="modal-actions">
       <button class="btn" onclick="closeTeamModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveTeam()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- cloud sync modal -->
-<div id="sync-modal" class="modal-bg hidden">
-  <div class="modal sync-modal">
-    <h3><i class="ti ti-cloud" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Cloud Sync 설정</h3>
-    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;line-height:1.6">
-      GitHub Personal Access Token을 입력하면 데이터가 <b>비공개 Gist</b>에 저장됩니다.<br>
-      토큰은 이 브라우저 localStorage에만 보관됩니다.
-    </p>
-    <div class="form-row">
-      <label>GitHub Personal Access Token <span style="font-weight:400;color:var(--color-text-muted)">(gist 권한 필요)</span></label>
-      <input id="sync-token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
-    </div>
-    <div class="form-row" id="sync-gist-row">
-      <label>Gist ID <span style="font-weight:400;color:var(--color-text-muted)">(비워두면 자동 생성)</span></label>
-      <input id="sync-gist-input" placeholder="자동 생성됩니다"/>
-    </div>
-    <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:4px">
-      토큰 발급: GitHub → Settings → Developer settings → Personal access tokens → <b>gist</b> scope 선택
-    </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeSyncModal()">취소</button>
-      <button class="btn btn-danger" onclick="clearSyncConfig()" id="sync-clear-btn" style="display:none">연결 해제</button>
-      <button class="btn btn-primary" onclick="saveSyncConfig()"><i class="ti ti-check"></i> 저장 &amp; 연결</button>
     </div>
   </div>
 </div>
@@ -449,6 +399,25 @@
 </div>
 
 <script>
+/* ── Firebase REST ── */
+const FB_URL='https://orca-schedule-3103f-default-rtdb.firebaseio.com/data.json';
+
+async function fbLoad(){
+  const res=await fetch(FB_URL);
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function fbSave(payload){
+  const res=await fetch(FB_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+}
+
+function setSyncStatus(state, text){
+  document.getElementById('sync-dot').className='sync-dot'+(state?' '+state:'');
+  document.getElementById('sync-label').textContent=text;
+}
+
+/* ── App State ── */
 let MEMBERS=[
   {id:'a',name:'Joseph',color:'#3266ad',bg:'#e0eaf8',initials:'JO'},
   {id:'b',name:'Sung',  color:'#1d6e4f',bg:'#d4f0e4',initials:'SU'},
@@ -463,7 +432,6 @@ const PRIORITY={
 };
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// Use browser's local clock — most reliable across all environments
 const _n=new Date();
 const today=new Date(_n.getFullYear(),_n.getMonth(),_n.getDate());
 let curYear=today.getFullYear(), curMonth=today.getMonth();
@@ -476,11 +444,7 @@ function parseDate(s){const[y,mo,d]=s.split('-').map(Number);return new Date(y,m
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 function isWeekend(y,m,d){const w=new Date(y,m,d).getDay();return w===0||w===6;}
 
-const STORAGE_KEY='team-scheduler-tasks';
-const STORAGE_MEMBERS_KEY='team-scheduler-members';
-const STORAGE_ID_KEY='team-scheduler-nextid';
-const STORAGE_VERSION_KEY='team-scheduler-version';
-const CURRENT_VERSION='v2';
+const CURRENT_VERSION='v3';
 
 const DEFAULT_TASKS=[
   {id:1,name:'Sample',member:'a',start:dateStr(curYear,curMonth,1),end:dateStr(curYear,curMonth,3),priority:'mid'},
@@ -491,60 +455,67 @@ const DEFAULT_TASKS=[
 ];
 
 const MEMBER_COLORS=[
-  {color:'#3266ad',bg:'#e0eaf8'},
-  {color:'#1d6e4f',bg:'#d4f0e4'},
-  {color:'#993556',bg:'#f7d6e4'},
-  {color:'#854F0B',bg:'#fdebc6'},
-  {color:'#534AB7',bg:'#e8e6fb'},
-  {color:'#b5480f',bg:'#fde8d8'},
-  {color:'#0f7490',bg:'#d0f0f7'},
-  {color:'#5a3ea1',bg:'#ede8fb'},
+  {color:'#3266ad',bg:'#e0eaf8'},{color:'#1d6e4f',bg:'#d4f0e4'},
+  {color:'#993556',bg:'#f7d6e4'},{color:'#854F0B',bg:'#fdebc6'},
+  {color:'#534AB7',bg:'#e8e6fb'},{color:'#b5480f',bg:'#fde8d8'},
+  {color:'#0f7490',bg:'#d0f0f7'},{color:'#5a3ea1',bg:'#ede8fb'},
 ];
-function loadMembers(){
-  try{
-    const saved=localStorage.getItem(STORAGE_MEMBERS_KEY);
-    return saved?JSON.parse(saved):null;
-  }catch(e){return null;}
-}
-function saveMembers(){
-  try{localStorage.setItem(STORAGE_MEMBERS_KEY,JSON.stringify(MEMBERS));}catch(e){}
-}
-function getInitials(name){
-  const parts=name.trim().split(/\s+/);
-  if(parts.length>=2)return(parts[0][0]+parts[1][0]).toUpperCase();
-  return name.slice(0,2).toUpperCase();
-}
-function initStorage(){
-  try{
-    const ver=localStorage.getItem(STORAGE_VERSION_KEY);
-    if(ver!==CURRENT_VERSION){
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(STORAGE_ID_KEY);
-      localStorage.setItem(STORAGE_VERSION_KEY,CURRENT_VERSION);
-    }
-  }catch(e){}
-}
-function loadTasks(){
-  try{
-    const saved=localStorage.getItem(STORAGE_KEY);
-    return saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_TASKS));
-  }catch(e){return JSON.parse(JSON.stringify(DEFAULT_TASKS));}
-}
-function saveTasks(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(tasks));localStorage.setItem(STORAGE_ID_KEY,String(nextId));}catch(e){}
-}
-function loadNextId(){
-  try{const v=localStorage.getItem(STORAGE_ID_KEY);return v?parseInt(v):6;}catch(e){return 6;}
-}
 
-initStorage();
-const savedMembers=loadMembers();
-if(savedMembers)MEMBERS.splice(0,MEMBERS.length,...savedMembers);
-activeMembers=new Set(MEMBERS.map(m=>m.id));
-let tasks=loadTasks();
-let nextId=loadNextId();
+let tasks=JSON.parse(JSON.stringify(DEFAULT_TASKS));
+let nextId=6;
 let meEdits=[], meMemberId=null;
+let saveTimer=null;
 
+/* ── Auto Save (debounced) ── */
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  setSyncStatus('saving','저장 중…');
+  saveTimer=setTimeout(()=>cloudSave(),1500);
+}
+
+async function cloudSave(){
+  try{
+    const payload={
+      version:CURRENT_VERSION,
+      savedAt:new Date().toISOString(),
+      tasks, nextId, members:MEMBERS,
+      memo:document.getElementById('memo-area').value
+    };
+    await fbSave(payload);
+    setSyncStatus('ok','저장됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));
+  }catch(err){
+    setSyncStatus('err','저장 실패');
+    console.error(err);
+  }
+}
+
+/* ── Initial Load ── */
+async function initLoad(){
+  try{
+    const data=await fbLoad();
+    if(data&&data.tasks&&Array.isArray(data.tasks)){
+      tasks=data.tasks;
+      nextId=data.nextId||tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
+      if(data.members&&Array.isArray(data.members)){
+        MEMBERS.splice(0,MEMBERS.length,...data.members);
+      }
+      if(data.memo) document.getElementById('memo-area').value=data.memo;
+      activeMembers=new Set(MEMBERS.map(m=>m.id));
+      setSyncStatus('ok','불러옴 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));
+    } else {
+      setSyncStatus('ok','새 데이터');
+      await cloudSave();
+    }
+  }catch(err){
+    setSyncStatus('err','로드 실패 — 로컬 모드');
+    console.error(err);
+  }
+  document.getElementById('loading-overlay').remove();
+  populateMemberSelect();
+  render();
+}
+
+/* ── View ── */
 function changeMonth(d){curMonth+=d;if(curMonth>11){curMonth=0;curYear++;}if(curMonth<0){curMonth=11;curYear--;}render();}
 function gotoToday(){curYear=today.getFullYear();curMonth=today.getMonth();render();}
 function setView(v){
@@ -684,16 +655,16 @@ function renderLoad(){
 }
 
 function render(){
-  saveTasks();
   document.getElementById('month-title').textContent=`${MONTHS[curMonth]} ${curYear}`;
   renderMembersStrip();
   renderGantt();
   renderList();
   renderUpcoming();
   renderLoad();
+  scheduleSave();
 }
 
-/* member bulk editor */
+/* ── Member bulk editor ── */
 function openMemberModal(mid){
   meMemberId=mid;
   const m=MEMBERS.find(x=>x.id===mid);
@@ -753,7 +724,7 @@ function saveMemberTasks(){
 }
 function closeMemberModal(){document.getElementById('member-modal').className='member-modal-bg hidden';meEdits=[];meMemberId=null;}
 
-/* single task modal */
+/* ── Single task modal ── */
 function openAddModal(){
   editId=null;
   document.getElementById('modal-title').textContent='Add task';
@@ -791,19 +762,7 @@ function saveTask(){
 }
 function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);render();}
 
-
-
-const STORAGE_MEMO_KEY='team-scheduler-memo';
-function loadMemo(){try{return localStorage.getItem(STORAGE_MEMO_KEY)||'';}catch(e){return '';}}
-function saveMemo(){
-  const v=document.getElementById('memo-area').value;
-  try{localStorage.setItem(STORAGE_MEMO_KEY,v);}catch(e){}
-  const ind=document.getElementById('memo-saved-indicator');
-  ind.style.opacity='1';
-  setTimeout(()=>ind.style.opacity='0',1800);
-}
-
-
+/* ── Export / Import ── */
 function exportData(){
   const payload={version:CURRENT_VERSION,exportedAt:new Date().toISOString(),tasks,nextId,memo:document.getElementById('memo-area').value};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
@@ -815,10 +774,8 @@ function exportData(){
   a.click();
   URL.revokeObjectURL(url);
 }
-
 function importData(e){
-  const file=e.target.files[0];
-  if(!file)return;
+  const file=e.target.files[0]; if(!file)return;
   const reader=new FileReader();
   reader.onload=function(ev){
     try{
@@ -827,16 +784,10 @@ function importData(e){
       if(!confirm('Import this file? Current data will be replaced.'))return;
       tasks=data.tasks;
       nextId=data.nextId||tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
-      if(data.memo){
-        document.getElementById('memo-area').value=data.memo;
-        try{localStorage.setItem(STORAGE_MEMO_KEY,data.memo);}catch(err){}
-      }
-      saveTasks();
+      if(data.memo) document.getElementById('memo-area').value=data.memo;
       render();
       showToast('Import successful');
-    }catch(err){
-      alert('Failed to import: '+err.message);
-    }
+    }catch(err){alert('Failed to import: '+err.message);}
     e.target.value='';
   };
   reader.readAsText(file);
@@ -849,18 +800,14 @@ function showToast(msg){
   clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.opacity='0',2000);
 }
 
-
-/* ── team editor ── */
+/* ── Team editor ── */
 let teamEdits=[];
-
 function openTeamModal(){
   teamEdits=MEMBERS.map(m=>({...m}));
   renderTeamEditor();
   document.getElementById('team-modal').className='modal-bg';
 }
-function closeTeamModal(){
-  document.getElementById('team-modal').className='modal-bg hidden';
-}
+function closeTeamModal(){document.getElementById('team-modal').className='modal-bg hidden';}
 function renderTeamEditor(){
   const el=document.getElementById('team-member-list');
   el.innerHTML=teamEdits.map((m,i)=>`
@@ -875,181 +822,40 @@ function renderTeamEditor(){
       ${teamEdits.length>1?`<button class="btn btn-danger" style="padding:3px 7px;font-size:11px;flex-shrink:0" onclick="removeTeamMember(${i})"><i class="ti ti-trash"></i></button>`:'<div style="width:34px"></div>'}
     </div>`).join('');
 }
+function getInitials(name){
+  const parts=name.trim().split(/\s+/);
+  if(parts.length>=2)return(parts[0][0]+parts[1][0]).toUpperCase();
+  return name.slice(0,2).toUpperCase();
+}
 function applyMemberColor(i,ci){
   const c=MEMBER_COLORS[parseInt(ci)];
-  teamEdits[i].color=c.color;
-  teamEdits[i].bg=c.bg;
-  renderTeamEditor();
+  teamEdits[i].color=c.color; teamEdits[i].bg=c.bg; renderTeamEditor();
 }
 function addTeamMember(){
   const usedColors=teamEdits.map(m=>m.color);
   const c=MEMBER_COLORS.find(c=>!usedColors.includes(c.color))||MEMBER_COLORS[teamEdits.length%MEMBER_COLORS.length];
-  const newId='m'+Date.now();
-  teamEdits.push({id:newId,name:'New member',color:c.color,bg:c.bg,initials:'NM'});
+  teamEdits.push({id:'m'+Date.now(),name:'New member',color:c.color,bg:c.bg,initials:'NM'});
   renderTeamEditor();
 }
 function removeTeamMember(i){
   if(teamEdits.length<=1)return;
-  teamEdits.splice(i,1);
-  renderTeamEditor();
+  teamEdits.splice(i,1); renderTeamEditor();
 }
 function saveTeam(){
   const valid=teamEdits.filter(m=>m.name.trim());
   if(!valid.length)return;
-  // reassign MEMBERS in place
   MEMBERS.splice(0,MEMBERS.length,...valid.map(m=>({...m,name:m.name.trim(),initials:getInitials(m.name)})));
-  // remove tasks for deleted members
   const ids=new Set(MEMBERS.map(m=>m.id));
   tasks=tasks.filter(t=>ids.has(t.member));
-  // reset activeMembers
   activeMembers=new Set(MEMBERS.map(m=>m.id));
-  saveMembers();
-  saveTasks();
   closeTeamModal();
   populateMemberSelect();
   render();
   showToast('Team updated');
 }
 
-populateMemberSelect();
-document.getElementById('memo-area').value=loadMemo();
-render();
-
-/* ── Cloud Sync (GitHub Gist) ── */
-const SYNC_TOKEN_KEY='team-scheduler-sync-token';
-const SYNC_GIST_KEY='team-scheduler-sync-gist';
-const GIST_FILENAME='team-scheduler-data.json';
-
-function getSyncToken(){try{return localStorage.getItem(SYNC_TOKEN_KEY)||'';}catch(e){return '';}}
-function getSyncGistId(){try{return localStorage.getItem(SYNC_GIST_KEY)||'';}catch(e){return '';}}
-
-function setSyncStatus(state, text){
-  const dot=document.getElementById('sync-dot');
-  const lbl=document.getElementById('sync-label');
-  const pullBtn=document.getElementById('sync-pull-btn');
-  const pushBtn=document.getElementById('sync-push-btn');
-  dot.className='sync-dot'+(state?' '+state:'');
-  lbl.textContent=text;
-  const hasToken=!!getSyncToken();
-  pullBtn.disabled=!hasToken; pushBtn.disabled=!hasToken;
-}
-
-function initSyncStatus(){
-  const token=getSyncToken(), gistId=getSyncGistId();
-  if(!token){setSyncStatus('','Cloud sync not configured');return;}
-  if(gistId){setSyncStatus('ok',`Gist 연결됨 · ${gistId.slice(0,8)}…`);}
-  else{setSyncStatus('','토큰 설정됨 — Push로 Gist 생성');}
-}
-
-function openSyncModal(){
-  document.getElementById('sync-token-input').value=getSyncToken();
-  document.getElementById('sync-gist-input').value=getSyncGistId();
-  const hasCfg=!!getSyncToken();
-  document.getElementById('sync-clear-btn').style.display=hasCfg?'':'none';
-  document.getElementById('sync-modal').className='modal-bg';
-}
-function closeSyncModal(){document.getElementById('sync-modal').className='modal-bg hidden';}
-
-function saveSyncConfig(){
-  const token=document.getElementById('sync-token-input').value.trim();
-  const gist=document.getElementById('sync-gist-input').value.trim();
-  if(!token){alert('토큰을 입력해주세요.');return;}
-  try{
-    localStorage.setItem(SYNC_TOKEN_KEY,token);
-    if(gist)localStorage.setItem(SYNC_GIST_KEY,gist);
-    else localStorage.removeItem(SYNC_GIST_KEY);
-  }catch(e){}
-  closeSyncModal();
-  initSyncStatus();
-  showToast('Sync 설정 저장됨');
-}
-
-function clearSyncConfig(){
-  if(!confirm('Cloud sync 연결을 해제할까요? 로컬 데이터는 유지됩니다.'))return;
-  try{localStorage.removeItem(SYNC_TOKEN_KEY);localStorage.removeItem(SYNC_GIST_KEY);}catch(e){}
-  closeSyncModal();
-  initSyncStatus();
-  showToast('연결 해제됨');
-}
-
-async function cloudPush(){
-  const token=getSyncToken();
-  if(!token){openSyncModal();return;}
-  setSyncStatus('loading','저장 중…');
-  const payload={
-    version:CURRENT_VERSION,
-    exportedAt:new Date().toISOString(),
-    tasks,nextId,
-    memo:document.getElementById('memo-area').value,
-    members:MEMBERS
-  };
-  const body=JSON.stringify(payload,null,2);
-  const gistId=getSyncGistId();
-  try{
-    let res;
-    if(gistId){
-      res=await fetch(`https://api.github.com/gists/${gistId}`,{
-        method:'PATCH',
-        headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},
-        body:JSON.stringify({files:{[GIST_FILENAME]:{content:body}}})
-      });
-    } else {
-      res=await fetch('https://api.github.com/gists',{
-        method:'POST',
-        headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},
-        body:JSON.stringify({description:'Team Scheduler Data',public:false,files:{[GIST_FILENAME]:{content:body}}})
-      });
-    }
-    if(!res.ok)throw new Error(`HTTP ${res.status}`);
-    const data=await res.json();
-    const newId=data.id;
-    try{localStorage.setItem(SYNC_GIST_KEY,newId);}catch(e){}
-    setSyncStatus('ok',`저장됨 · ${newId.slice(0,8)}… · ${new Date().toLocaleTimeString()}`);
-    showToast('Cloud에 저장됨 ☁️');
-  }catch(err){
-    setSyncStatus('err','저장 실패: '+err.message);
-    showToast('저장 실패: '+err.message);
-  }
-}
-
-async function cloudPull(){
-  const token=getSyncToken(), gistId=getSyncGistId();
-  if(!token){openSyncModal();return;}
-  if(!gistId){showToast('먼저 Push로 Gist를 생성하세요.');return;}
-  setSyncStatus('loading','불러오는 중…');
-  try{
-    const res=await fetch(`https://api.github.com/gists/${gistId}`,{
-      headers:{Authorization:`token ${token}`}
-    });
-    if(!res.ok)throw new Error(`HTTP ${res.status}`);
-    const data=await res.json();
-    const raw=data.files[GIST_FILENAME]?.content;
-    if(!raw)throw new Error('파일 없음');
-    const parsed=JSON.parse(raw);
-    if(!parsed.tasks||!Array.isArray(parsed.tasks))throw new Error('Invalid format');
-    if(!confirm('Cloud 데이터를 불러올까요? 현재 로컬 데이터는 덮어씌워집니다.'))return;
-    tasks=parsed.tasks;
-    nextId=parsed.nextId||tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
-    if(parsed.members&&Array.isArray(parsed.members)){
-      MEMBERS.splice(0,MEMBERS.length,...parsed.members);
-      saveMembers();
-      activeMembers=new Set(MEMBERS.map(m=>m.id));
-    }
-    if(parsed.memo){
-      document.getElementById('memo-area').value=parsed.memo;
-      try{localStorage.setItem(STORAGE_MEMO_KEY,parsed.memo);}catch(e){}
-    }
-    saveTasks();
-    render();
-    setSyncStatus('ok',`불러옴 · ${gistId.slice(0,8)}… · ${new Date().toLocaleTimeString()}`);
-    showToast('Cloud에서 불러옴 ☁️');
-  }catch(err){
-    setSyncStatus('err','불러오기 실패: '+err.message);
-    showToast('불러오기 실패: '+err.message);
-  }
-}
-
-initSyncStatus();
+/* ── Start ── */
+initLoad();
 </script>
 </body>
 </html>
