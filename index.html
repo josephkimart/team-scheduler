@@ -561,9 +561,12 @@ function toggleMember(id){if(activeMembers.has(id)){if(activeMembers.size>1)acti
 function renderGantt(){
   const days=daysInMonth(curYear,curMonth);
   const todayStr=`${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  const mS=new Date(curYear,curMonth,1),mE=new Date(curYear,curMonth,days);
+  // a task belongs to this month only if its date range overlaps it
+  const inThisMonth=t=>{const tS=parseDate(t.start),tE=parseDate(t.end);return tS<=mE&&tE>=mS;};
   const byMember={};
   MEMBERS.forEach(m=>{if(activeMembers.has(m.id))byMember[m.id]=[];});
-  tasks.filter(t=>activeMembers.has(t.member)).forEach(t=>{if(byMember[t.member])byMember[t.member].push(t);});
+  tasks.filter(t=>activeMembers.has(t.member)&&inThisMonth(t)).forEach(t=>{if(byMember[t.member])byMember[t.member].push(t);});
 
   let hdr=`<thead><tr><th class="name-col">Task</th>`;
   for(let d=1;d<=days;d++){
@@ -587,7 +590,6 @@ function renderGantt(){
     }
     mt.forEach((t,i)=>{
       const tS=parseDate(t.start),tE=parseDate(t.end);
-      const mS=new Date(curYear,curMonth,1),mE=new Date(curYear,curMonth,days);
       const eS=tS<mS?mS:tS, eE=tE>mE?mE:tE;
       const s=eS.getDate(), e=eE.getDate();
       let cells=''; let d=1;
